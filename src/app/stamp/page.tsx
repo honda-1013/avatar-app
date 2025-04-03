@@ -34,7 +34,7 @@ export default function StampPage() {
         onClick={handleAddStamp}
         className="bg-pink-500 hover:bg-pink-600 text-white px-6 py-2 rounded-full shadow-md"
       >
-        スタンプ押す！
+        QRコードを読み取る（仮）
       </button>
 
       {stamps >= 9 && (
