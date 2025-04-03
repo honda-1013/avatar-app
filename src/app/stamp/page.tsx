@@ -1,46 +1,47 @@
-'use client';
-import React, { useState } from 'react';
+'use client'
+import React, { useState } from 'react'
+import { motion } from 'framer-motion'
 
-const StampPage = () => {
-  const [stamps, setStamps] = useState(0);
+const emojiList = ['🍑', '🍓', '🥳', '☺️', '🧃', '🌈', '🦄', '🎁', '✨']
 
-  const handleScan = () => {
-    if (stamps < 5) {
-      setStamps(stamps + 1);
+export default function StampPage() {
+  const [stamps, setStamps] = useState(0)
+
+  const handleAddStamp = () => {
+    if (stamps < 9) {
+      setStamps(stamps + 1)
     }
-  };
+  }
 
   return (
-    <div className="min-h-screen bg-gray-100 flex flex-col items-center justify-center p-6">
-      <h1 className="text-2xl font-bold mb-4">スタンプカード</h1>
+    <div className="min-h-screen flex flex-col items-center justify-center bg-pink-50 p-6">
+      <h1 className="text-2xl font-bold text-pink-700 mb-6">スタンプカード</h1>
 
-      <div className="grid grid-cols-5 gap-2 mb-6">
-        {[...Array(5)].map((_, i) => (
-          <div
+      <div className="grid grid-cols-3 gap-4 mb-6">
+        {[...Array(9)].map((_, i) => (
+          <motion.div
             key={i}
-            className={`w-12 h-12 border-2 rounded-full flex items-center justify-center text-xl ${
-              i < stamps ? 'bg-green-400 text-white' : 'bg-white'
-            }`}
+            className="w-20 h-20 rounded-full border-2 border-pink-400 flex items-center justify-center text-3xl bg-white"
+            animate={i < stamps ? { scale: [0.8, 1.2, 1] } : {}}
+            transition={{ duration: 0.3 }}
           >
-            {i < stamps ? '✓' : ''}
-          </div>
+            {i < stamps ? emojiList[i % emojiList.length] : ''}
+          </motion.div>
         ))}
       </div>
 
       <button
-        className="bg-blue-500 text-white px-4 py-2 rounded"
-        onClick={handleScan}
+        onClick={handleAddStamp}
+        className="bg-pink-500 hover:bg-pink-600 text-white px-6 py-2 rounded-full shadow-md"
       >
-        QRをスキャン！（仮ボタン）
+        スタンプ押す！
       </button>
 
-      {stamps >= 5 && (
-        <div className="mt-6 text-green-700 font-semibold">
-          🎉 特典ゲットおめでとう！
-        </div>
+      {stamps >= 9 && (
+        <p className="mt-6 text-pink-600 font-semibold text-lg">
+          🎉 スタンプカード完成！おめでとう！
+        </p>
       )}
     </div>
-  );
-};
-
-export default StampPage;
+  )
+}
