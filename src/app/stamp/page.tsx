@@ -4,7 +4,8 @@ import React, { useEffect, useRef, useState, useCallback } from "react";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { motion } from "framer-motion";
 import "swiper/css";
-import { Html5Qrcode } from "html5-qrcode";
+import { Html5Qrcode, Html5QrcodeScannerState } from "html5-qrcode";
+import type SwiperClass from "swiper";
 
 const emojiList = ["🍑", "🍓", "🥳", "☺️", "🍇", "🍍", "🌈", "🎶", "⭐️"];
 
@@ -12,11 +13,11 @@ export default function StampPage() {
   const [stamps, setStamps] = useState<number[][]>(
     Array(5).fill(Array(9).fill(0))
   );
-  const swiperRef = useRef<any>(null);
+  const swiperRef = useRef<SwiperClass | null>(null);
   const qrRef = useRef<Html5Qrcode | null>(null);
 
-  const handleScan = useCallback((decodedText: string) => {
-    const currentIndex = swiperRef.current?.swiper.realIndex || 0;
+  const handleScan = useCallback((_decodedText: string) => {
+    const currentIndex = swiperRef.current?.realIndex || 0;
     const currentCard = stamps[currentIndex];
     const nextIndex = currentCard.findIndex((s) => s === 0);
     if (nextIndex !== -1) {
@@ -39,7 +40,7 @@ export default function StampPage() {
           fps: 10,
           qrbox: { width: 200, height: 200 },
         },
-        (decodedText: string) => {
+        (decodedText) => {
           scanner.pause();
           handleScan(decodedText);
           setTimeout(() => scanner.resume(), 1500);
