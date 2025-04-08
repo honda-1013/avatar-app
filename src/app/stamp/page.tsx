@@ -35,7 +35,6 @@ const StampPage = () => {
       newStamps[currentIndex] = updatedCard;
       setStamps(newStamps);
 
-      // 全部埋まったら次のカードへ
       if (nextStampIndex === updatedCard.length - 1) {
         const nextCardIndex = currentIndex + 1;
         if (nextCardIndex < stamps.length) {
@@ -57,10 +56,13 @@ const StampPage = () => {
         { fps: 10, qrbox: { width: 250, height: 250 } },
         () => {
           pushStamp();
+        },
+        (errorMessage) => {
+          console.warn("QRスキャンエラー:", errorMessage);
         }
       )
       .catch((err) => {
-        console.error("QR読み取りエラー", err);
+        console.error("QR読み取り開始エラー", err);
       });
 
     return () => {
@@ -68,23 +70,23 @@ const StampPage = () => {
         console.error("QR停止エラー", err);
       });
     };
-  }, []);
+  }, [pushStamp]); // ←依存配列修正済み！
 
   return (
     <div className="min-h-screen bg-pink-50 flex flex-col items-center justify-between p-4">
-      <h1 className="text-2xl font-bold text-pink-600 mb-4">スタンプカード</h1>
+      <h1 className="text-2xl font-bold text-pink-600 mb-2">スタンプカード</h1>
 
       <div
         ref={qrRegionRef}
         id="qr-reader"
-        className="w-full max-w-xs aspect-square bg-white"
+        className="w-full max-w-xs aspect-square bg-white mb-4"
       />
 
       <Swiper
         spaceBetween={20}
         slidesPerView={1}
         onSwiper={(swiper) => (swiperRef.current = { swiper })}
-        className="w-full max-w-sm mt-4"
+        className="w-full max-w-sm"
       >
         {stamps.map((card, cardIndex) => (
           <SwiperSlide key={cardIndex}>
