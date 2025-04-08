@@ -1,112 +1,82 @@
-'use client'
+"use client";
 
-import React, { useState, useEffect, useRef } from 'react'
-import { Swiper, SwiperSlide } from 'swiper/react'
-import 'swiper/css'
-import { Html5Qrcode } from 'html5-qrcode'
-import { motion } from 'framer-motion'
+import React, { useState, useRef } from "react";
+import { Swiper, SwiperSlide } from "swiper/react";
+import { motion } from "framer-motion";
+import "swiper/css";
+import dynamic from "next/dynamic";
 
-const emojiList = ['🍑', '🍓', '🥳', '☺️', '🧃', '🌈', '🦄', '🎁', '✨']
-const TOTAL_STAMPS = 45
-const STAMPS_PER_PAGE = 9
-const TOTAL_PAGES = TOTAL_STAMPS / STAMPS_PER_PAGE
+const QrReader = dynamic(() => import("react-qr-reader"), { ssr: false });
 
-export default function StampPage() {
-  const [stamps, setStamps] = useState(0)
-  const [currentPage, setCurrentPage] = useState(0)
-  const cameraRef = useRef<HTMLDivElement>(null)
-  const scannerRef = useRef<Html5Qrcode | null>(null)
+const emojiList = ["🍑", "🍓", "🥳", "☺️", "🍇", "🍍", "🌈", "🎶", "⭐️"];
 
-  useEffect(() => {
-    const startScanner = async () => {
-      if (scannerRef.current || !cameraRef.current) return
+const StampPage = () => {
+  const [stamps, setStamps] = useState<number[][]>(
+    Array(5).fill(Array(9).fill(0))
+  );
+  const swiperRef = useRef<any>(null);
 
-      const html5QrCode = new Html5Qrcode('reader')
-      scannerRef.current = html5QrCode
+  const handleScan = (data: string | null) => {
+    if (data) {
+      const currentIndex = swiperRef.current?.swiper.realIndex || 0;
+      const currentCard = stamps[currentIndex];
+      const nextStampIndex = currentCard.findIndex((s) => s === 0);
 
-      try {
-        await html5QrCode.start(
-          { facingMode: 'environment' },
-          {
-            fps: 10,
-            qrbox: 200,
-          },
-          (decodedText) => {
-            html5QrCode.pause()
-            handleScan(decodedText)
-            setTimeout(() => html5QrCode.resume(), 2000)
-          }
-        )
-      } catch (err) {
-        console.error('カメラ起動失敗', err)
+      if (nextStampIndex !== -1) {
+        const updatedCard = [...currentCard];
+        updatedCard[nextStampIndex] = 1;
+
+        const newStamps = [...stamps];
+        newStamps[currentIndex] = updatedCard;
+        setStamps(newStamps);
       }
     }
+  };
 
-    startScanner()
-
-    return () => {
-      scannerRef.current?.stop().then(() => {
-        scannerRef.current = null
-      })
-    }
-  }, [])
-
-  const handleScan = (text: string) => {
-    if (stamps < TOTAL_STAMPS) {
-      setStamps((prev) => prev + 1)
-    }
-  }
-
-  const getEmoji = (index: number) => {
-    return emojiList[index % emojiList.length]
-  }
+  const handleError = (err: any) => {
+    console.error(err);
+  };
 
   return (
-    <div className="min-h-screen bg-pink-50 flex flex-col items-center justify-start p-6 space-y-6">
-      <h1 className="text-2xl font-bold text-pink-700">スタンプカード</h1>
+    <div className="min-h-screen bg-gray-100 flex flex-col items-center justify-center p-4">
+      <h1 className="text-2xl font-bold mb-4">スタンプカード</h1>
 
-      {/* カメラエリア */}
-      <div
-        id="reader"
-        ref={cameraRef}
-        className="w-[300px] h-[200px] border-2 border-pink-400 rounded-lg"
-      />
-
-      {/* スタンプカード（スワイプ式） */}
       <Swiper
         spaceBetween={20}
         slidesPerView={1}
-        onSlideChange={(swiper) => setCurrentPage(swiper.activeIndex)}
+        onSwiper={(swiper) => (swiperRef.current = swiper)}
         className="w-full max-w-sm"
       >
-        {Array.from({ length: TOTAL_PAGES }).map((_, pageIndex) => (
-          <SwiperSlide key={pageIndex}>
-            <div className="grid grid-cols-3 gap-4 bg-white p-4 rounded-lg shadow-md">
-              {Array.from({ length: STAMPS_PER_PAGE }).map((_, i) => {
-                const stampIndex = pageIndex * STAMPS_PER_PAGE + i
-                const isStamped = stampIndex < stamps
-
-                return (
-                  <motion.div
-                    key={stampIndex}
-                    className="w-20 h-20 border-2 border-pink-300 rounded-full flex items-center justify-center text-2xl"
-                    animate={isStamped ? { scale: [0.8, 1.2, 1] } : {}}
-                    transition={{ duration: 0.3 }}
-                  >
-                    {isStamped ? getEmoji(stampIndex) : ''}
-                  </motion.div>
-                )
-              })}
+        {stamps.map((card, cardIndex) => (
+          <SwiperSlide key={cardIndex}>
+            <div className="grid grid-cols-3 gap-2">
+              {card.map((filled, i) => (
+                <motion.div
+                  key={i}
+                  className="w-16 h-16 border-2 rounded-full flex items-center justify-center text-2xl bg-white"
+                  animate={{ scale: filled ? 1.2 : 1, opacity: filled ? 1 : 0.5 }}
+                  transition={{ duration: 0.3 }}
+                >
+                  {filled ? emojiList[i % emojiList.length] : ""}
+                </motion.div>
+              ))}
             </div>
           </SwiperSlide>
         ))}
       </Swiper>
 
-      {/* 現在のスタンプ数 */}
-      <p className="text-pink-600">
-        スタンプ：{stamps} / {TOTAL_STAMPS}
-      </p>
+      <div className="mt-6 w-full max-w-sm">
+        <QrReader
+          delay={300}
+          onError={handleError}
+          onScan={handleScan}
+          style={{ width: "100%" }}
+        />
+      </div>
     </div>
-  )
-}
+  );
+};
+
+export default StampPage;
+
 
