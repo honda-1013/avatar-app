@@ -17,8 +17,11 @@ export default function StampPage() {
   const qrRef = useRef<Html5Qrcode | null>(null);
 
   const handleScan = useCallback((decodedText: string) => {
-    console.log("QR読み取り成功:", decodedText);
     if (!decodedText) return;
+  
+    // ここでアラート表示！
+    alert(`QR読み取り成功！内容：${decodedText}`);
+  
     const currentIndex = swiperRef.current?.realIndex || 0;
     const currentCard = stamps[currentIndex];
     const nextIndex = currentCard.findIndex((s) => s === 0);
@@ -30,6 +33,7 @@ export default function StampPage() {
       setStamps(newStamps);
     }
   }, [stamps]);
+  
 
   useEffect(() => {
     const scanner = new Html5Qrcode("qr-reader");
