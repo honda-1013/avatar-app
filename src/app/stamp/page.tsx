@@ -1,8 +1,10 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable react-hooks/exhaustive-deps */
 "use client";
 
 import React, { useEffect, useRef, useState } from "react";
-import { Html5Qrcode, Html5QrcodeScanner } from "html5-qrcode";
+import { Html5Qrcode } from "html5-qrcode";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { motion } from "framer-motion";
 import "swiper/css";
@@ -20,12 +22,13 @@ const StampPage = () => {
     if (!qrRegionRef.current) return;
 
     const html5QrCode = new Html5Qrcode("qr-reader");
+
     html5QrCode
       .start(
         { facingMode: "environment" },
         {
           fps: 10,
-          qrbox: { width: 250, height: 250 },
+          qrbox: { width: 300, height: 300 },
         },
         (decodedText: string) => {
           const currentIndex = swiperRef.current?.swiper?.realIndex || 0;
@@ -51,7 +54,12 @@ const StampPage = () => {
     <div className="min-h-screen bg-pink-50 flex flex-col items-center p-4">
       <h1 className="text-2xl font-bold text-pink-600 mb-4">スタンプカード</h1>
 
-      <div id="qr-reader" ref={qrRegionRef} className="mb-4" style={{ width: "90%" }} />
+      <div
+        id="qr-reader"
+        ref={qrRegionRef}
+        className="mb-4 border-4 border-pink-400 rounded"
+        style={{ width: "300px", height: "300px" }}
+      />
 
       <Swiper
         spaceBetween={20}
