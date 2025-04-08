@@ -41,6 +41,9 @@ const StampPage = () => {
             newStamps[currentIndex] = updatedCard;
             setStamps(newStamps);
           }
+        },
+        (err) => {
+          console.warn("読み取り失敗:", err);
         }
       )
       .catch((err) => console.error("QR start error", err));
