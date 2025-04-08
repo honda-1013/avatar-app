@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState, useCallback } from "react";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { motion } from "framer-motion";
 import "swiper/css";
@@ -15,7 +15,7 @@ export default function StampPage() {
   const swiperRef = useRef<any>(null);
   const qrRef = useRef<Html5Qrcode | null>(null);
 
-  const handleScan = (data: string) => {
+  const handleScan = useCallback((decodedText: string) => {
     const currentIndex = swiperRef.current?.swiper.realIndex || 0;
     const currentCard = stamps[currentIndex];
     const nextIndex = currentCard.findIndex((s) => s === 0);
@@ -26,7 +26,7 @@ export default function StampPage() {
       newStamps[currentIndex] = newCard;
       setStamps(newStamps);
     }
-  };
+  }, [stamps]);
 
   useEffect(() => {
     const scanner = new Html5Qrcode("qr-reader");
@@ -39,7 +39,7 @@ export default function StampPage() {
           fps: 10,
           qrbox: { width: 200, height: 200 },
         },
-        (decodedText) => {
+        (decodedText: string) => {
           scanner.pause();
           handleScan(decodedText);
           setTimeout(() => scanner.resume(), 1500);
@@ -53,7 +53,7 @@ export default function StampPage() {
     return () => {
       scanner.stop().catch(() => {});
     };
-  }, []);
+  }, [handleScan]);
 
   return (
     <div className="min-h-screen bg-pink-50 flex flex-col items-center justify-start p-6 space-y-6">
