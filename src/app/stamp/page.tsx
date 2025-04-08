@@ -1,45 +1,65 @@
 "use client";
 
-import React, { useState, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { motion } from "framer-motion";
 import "swiper/css";
-import dynamic from "next/dynamic";
-
-const QrReader = dynamic(() => import("react-qr-reader"), { ssr: false });
+import { Html5Qrcode } from "html5-qrcode";
 
 const emojiList = ["🍑", "🍓", "🥳", "☺️", "🍇", "🍍", "🌈", "🎶", "⭐️"];
 
-const StampPage = () => {
+export default function StampPage() {
   const [stamps, setStamps] = useState<number[][]>(
     Array(5).fill(Array(9).fill(0))
   );
   const swiperRef = useRef<any>(null);
+  const qrRef = useRef<Html5Qrcode | null>(null);
 
-  const handleScan = (data: string | null) => {
-    if (data) {
-      const currentIndex = swiperRef.current?.swiper.realIndex || 0;
-      const currentCard = stamps[currentIndex];
-      const nextStampIndex = currentCard.findIndex((s) => s === 0);
-
-      if (nextStampIndex !== -1) {
-        const updatedCard = [...currentCard];
-        updatedCard[nextStampIndex] = 1;
-
-        const newStamps = [...stamps];
-        newStamps[currentIndex] = updatedCard;
-        setStamps(newStamps);
-      }
+  const handleScan = (data: string) => {
+    const currentIndex = swiperRef.current?.swiper.realIndex || 0;
+    const currentCard = stamps[currentIndex];
+    const nextIndex = currentCard.findIndex((s) => s === 0);
+    if (nextIndex !== -1) {
+      const newCard = [...currentCard];
+      newCard[nextIndex] = 1;
+      const newStamps = [...stamps];
+      newStamps[currentIndex] = newCard;
+      setStamps(newStamps);
     }
   };
 
-  const handleError = (err: any) => {
-    console.error(err);
-  };
+  useEffect(() => {
+    const scanner = new Html5Qrcode("qr-reader");
+    qrRef.current = scanner;
+
+    scanner
+      .start(
+        { facingMode: "environment" },
+        {
+          fps: 10,
+          qrbox: { width: 200, height: 200 },
+        },
+        (decodedText) => {
+          scanner.pause();
+          handleScan(decodedText);
+          setTimeout(() => scanner.resume(), 1500);
+        },
+        (err) => {
+          console.warn("QRスキャンエラー:", err);
+        }
+      )
+      .catch((err) => console.error("カメラ起動エラー:", err));
+
+    return () => {
+      scanner.stop().catch(() => {});
+    };
+  }, []);
 
   return (
-    <div className="min-h-screen bg-gray-100 flex flex-col items-center justify-center p-4">
-      <h1 className="text-2xl font-bold mb-4">スタンプカード</h1>
+    <div className="min-h-screen bg-pink-50 flex flex-col items-center justify-start p-6 space-y-6">
+      <h1 className="text-2xl font-bold text-pink-700">スタンプカード</h1>
+
+      <div id="qr-reader" className="w-72 h-48 border-2 border-pink-400 rounded-md" />
 
       <Swiper
         spaceBetween={20}
@@ -49,12 +69,12 @@ const StampPage = () => {
       >
         {stamps.map((card, cardIndex) => (
           <SwiperSlide key={cardIndex}>
-            <div className="grid grid-cols-3 gap-2">
+            <div className="grid grid-cols-3 gap-4 bg-white p-4 rounded-lg shadow-md">
               {card.map((filled, i) => (
                 <motion.div
                   key={i}
-                  className="w-16 h-16 border-2 rounded-full flex items-center justify-center text-2xl bg-white"
-                  animate={{ scale: filled ? 1.2 : 1, opacity: filled ? 1 : 0.5 }}
+                  className="w-20 h-20 border-2 border-pink-300 rounded-full flex items-center justify-center text-2xl"
+                  animate={filled ? { scale: [0.8, 1.2, 1] } : {}}
                   transition={{ duration: 0.3 }}
                 >
                   {filled ? emojiList[i % emojiList.length] : ""}
@@ -65,18 +85,12 @@ const StampPage = () => {
         ))}
       </Swiper>
 
-      <div className="mt-6 w-full max-w-sm">
-        <QrReader
-          delay={300}
-          onError={handleError}
-          onScan={handleScan}
-          style={{ width: "100%" }}
-        />
-      </div>
+      <p className="text-pink-600 text-sm">
+        スタンプを押すにはQRコードを読み取ってね📷
+      </p>
     </div>
   );
-};
+}
 
-export default StampPage;
 
 
