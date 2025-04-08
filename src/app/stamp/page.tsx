@@ -13,7 +13,7 @@ const StampPage = () => {
     Array(5).fill(Array(9).fill(0))
   );
   const qrCodeRegionId = "reader";
-  const swiperRef = useRef<any>(null);
+  const swiperRef = useRef<{ swiper: { realIndex: number } } | null>(null); // ✅ 型を明確に指定
 
   useEffect(() => {
     const html5QrCode = new Html5Qrcode(qrCodeRegionId);
@@ -46,7 +46,7 @@ const StampPage = () => {
     return () => {
       html5QrCode.stop().catch((err) => console.error("停止エラー:", err));
     };
-  }, []);
+  }, [stamps]); // ✅ stamps を依存に追加
 
   return (
     <div className="min-h-screen bg-pink-50 flex flex-col items-center justify-center p-4">
