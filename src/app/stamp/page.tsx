@@ -6,7 +6,6 @@ import { Swiper, SwiperSlide } from "swiper/react";
 import { motion } from "framer-motion";
 import "swiper/css";
 
-// スタンプ絵文字リスト
 const emojiList = ["🍑", "🍓", "🥳", "☺️", "🍇", "🍍", "🌈", "🎶", "⭐️"];
 
 const StampPage = () => {
@@ -15,8 +14,8 @@ const StampPage = () => {
   );
   const qrCodeRegionId = "reader";
 
-  // swiperの参照を型anyで逃がす
-  const swiperRef = useRef<any>(null); // ✅ ESLintが怒らないようにany使用
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const swiperRef = useRef<any>(null);
 
   useEffect(() => {
     const html5QrCode = new Html5Qrcode(qrCodeRegionId);
@@ -49,18 +48,16 @@ const StampPage = () => {
     return () => {
       html5QrCode.stop().catch((err) => console.error("停止失敗", err));
     };
-  }, [stamps]); // ✅ stampsを依存に追加
+  }, [stamps]);
 
   return (
     <div className="min-h-screen bg-pink-50 flex flex-col items-center justify-center p-4">
       <h1 className="text-2xl font-bold text-pink-600 mb-4">スタンプカード</h1>
 
-      {/* 上半分：QRリーダー */}
       <div className="w-full max-w-sm h-[50vh] border-4 border-pink-300 rounded-lg overflow-hidden mb-4">
         <div id={qrCodeRegionId} className="w-full h-full" />
       </div>
 
-      {/* 下半分：スタンプカード */}
       <div className="w-full max-w-sm h-[50vh] flex flex-col items-center justify-start">
         <Swiper
           spaceBetween={20}
