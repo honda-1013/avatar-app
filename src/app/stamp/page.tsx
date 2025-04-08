@@ -17,6 +17,7 @@ export default function StampPage() {
   const qrRef = useRef<Html5Qrcode | null>(null);
 
   const handleScan = useCallback((decodedText: string) => {
+    console.log("QR読み取り成功:", decodedText);
     if (!decodedText) return;
     const currentIndex = swiperRef.current?.realIndex || 0;
     const currentCard = stamps[currentIndex];
