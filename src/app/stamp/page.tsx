@@ -17,10 +17,9 @@ export default function StampPage() {
   const qrRef = useRef<Html5Qrcode | null>(null);
 
   const handleScan = useCallback((decodedText: string) => {
-    if (!decodedText) return;
+    alert(`handleScan 実行中！結果: ${decodedText || "なし"}`);
   
-    // ここでアラート表示！
-    alert(`QR読み取り成功！内容：${decodedText}`);
+    if (!decodedText) return;
   
     const currentIndex = swiperRef.current?.realIndex || 0;
     const currentCard = stamps[currentIndex];
@@ -34,31 +33,32 @@ export default function StampPage() {
     }
   }, [stamps]);
   
-
   useEffect(() => {
     const scanner = new Html5Qrcode("qr-reader");
     qrRef.current = scanner;
-
+  
     scanner
       .start(
         { facingMode: "environment" },
         {
           fps: 10,
-          qrbox: { width: 200, height: 200 },
+          qrbox: { width: 300, height: 300 }, // ★ 幅広くした
         },
         (text) => {
-          scanner.pause();
           handleScan(text);
+          scanner.pause();
           setTimeout(() => scanner.resume(), 1500);
         },
-        (err) => console.warn("QRスキャンエラー:", err)
+        (err) => {
+          console.warn("QRスキャンエラー:", err);
+        }
       )
       .catch((err) => console.error("カメラ起動エラー:", err));
-
+  
     return () => {
       scanner.stop().catch(() => {});
     };
-  }, [handleScan]);
+  }, [handleScan]);  
 
   return (
     <div className="min-h-screen bg-pink-50 flex flex-col items-center justify-start p-6 space-y-6">
