@@ -17,6 +17,23 @@ const StampPage = () => {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const swiperRef = useRef<any>(null);
 
+  const pushStamp = () => {
+    const currentIndex = swiperRef.current?.swiper?.realIndex || 0;
+    const newStamps = [...stamps];
+
+    for (let i = currentIndex; i < newStamps.length; i++) {
+      const currentCard = [...newStamps[i]];
+      const nextStampIndex = currentCard.findIndex((s) => s === 0);
+
+      if (nextStampIndex !== -1) {
+        currentCard[nextStampIndex] = 1;
+        newStamps[i] = currentCard;
+        setStamps(newStamps);
+        return;
+      }
+    }
+  };
+
   useEffect(() => {
     const html5QrCode = new Html5Qrcode(qrCodeRegionId);
 
@@ -28,18 +45,7 @@ const StampPage = () => {
           qrbox: { width: 200, height: 200 },
         },
         () => {
-          const currentIndex = swiperRef.current?.swiper?.realIndex || 0;
-          const currentCard = stamps[currentIndex];
-          const nextStampIndex = currentCard.findIndex((s) => s === 0);
-
-          if (nextStampIndex !== -1) {
-            const updatedCard = [...currentCard];
-            updatedCard[nextStampIndex] = 1;
-
-            const newStamps = [...stamps];
-            newStamps[currentIndex] = updatedCard;
-            setStamps(newStamps);
-          }
+          pushStamp();
         },
         () => {}
       )
