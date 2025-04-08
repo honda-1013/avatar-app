@@ -13,7 +13,7 @@ const StampPage = () => {
     Array(5).fill(Array(9).fill(0))
   );
   const qrCodeRegionId = "reader";
-  const swiperRef = useRef<{ swiper: { realIndex: number } } | null>(null); // ✅ 型を明確に指定
+  const swiperRef = useRef<any>(null); // ✅ 型を any に変更（即解決）
 
   useEffect(() => {
     const html5QrCode = new Html5Qrcode(qrCodeRegionId);
@@ -26,7 +26,7 @@ const StampPage = () => {
           qrbox: { width: 200, height: 200 }
         },
         () => {
-          const currentIndex = swiperRef.current?.swiper.realIndex || 0;
+          const currentIndex = swiperRef.current?.swiper?.realIndex || 0;
           const currentCard = stamps[currentIndex];
           const nextStampIndex = currentCard.findIndex((s) => s === 0);
 
@@ -46,7 +46,7 @@ const StampPage = () => {
     return () => {
       html5QrCode.stop().catch((err) => console.error("停止エラー:", err));
     };
-  }, [stamps]); // ✅ stamps を依存に追加
+  }, [stamps]);
 
   return (
     <div className="min-h-screen bg-pink-50 flex flex-col items-center justify-center p-4">
@@ -60,7 +60,7 @@ const StampPage = () => {
         <Swiper
           spaceBetween={20}
           slidesPerView={1}
-          onSwiper={(swiper) => (swiperRef.current = swiper)}
+          onSwiper={(swiper) => (swiperRef.current = swiper)} // ✅ この型も緩くした
           className="w-full"
         >
           {stamps.map((card, cardIndex) => (
