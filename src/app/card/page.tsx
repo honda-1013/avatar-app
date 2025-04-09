@@ -35,28 +35,26 @@ const CardPage = () => {
 
   useEffect(() => {
     if (!qrRegionRef.current) return;
-
+  
     const html5QrCode = new Html5Qrcode(qrRegionRef.current.id);
-
+  
     html5QrCode
       .start(
-        html5QrCode.start(
-          { facingMode: "environment" },
-          { fps: 10, qrbox: { width: 250, height: 250 } },
-          () => {
-            pushStamp();
-          },
-          (error) => {
-            // エラーはログに出すだけでOK
-            console.warn("QR decode error", error);
-          }
-        );        
+        { facingMode: "environment" },
+        { fps: 10, qrbox: { width: 250, height: 250 } },
+        () => {
+          pushStamp();
+        },
+        (error) => {
+          console.warn("QR decode error", error);
+        }
+      )
       .catch((err) => console.error("Failed to start QR scanner", err));
-
+  
     return () => {
       html5QrCode.stop().catch((err) => console.error("Failed to stop", err));
     };
-  }, [pushStamp]);
+  }, [pushStamp]);  
 
   return (
     <div className="flex flex-col items-center min-h-screen bg-[#f4f8f7] pt-4">
