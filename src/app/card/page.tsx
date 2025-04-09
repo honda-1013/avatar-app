@@ -1,12 +1,11 @@
 "use client";
 
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState, useCallback } from "react";
 import { Html5Qrcode } from "html5-qrcode";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { motion } from "framer-motion";
 import "swiper/css";
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const emojiList = ["🍑", "🍓", "🍒", "🍇", "🍉", "🍍", "🥝", "🍎", "⭐"];
 
 const CardPage = () => {
@@ -14,9 +13,9 @@ const CardPage = () => {
     Array(5).fill(Array(9).fill(0))
   );
   const qrRegionRef = useRef<HTMLDivElement | null>(null);
-  const swiperRef = useRef<any>(null); // eslint-disable-line @typescript-eslint/no-explicit-any
+  const swiperRef = useRef<{ swiper: { realIndex: number } } | null>(null);
 
-  const pushStamp = () => {
+  const pushStamp = useCallback(() => {
     const currentIndex = swiperRef.current?.swiper?.realIndex || 0;
     const newStamps = [...stamps];
 
@@ -32,22 +31,19 @@ const CardPage = () => {
     }
 
     setStamps(newStamps);
-  };
+  }, [stamps]);
 
   useEffect(() => {
     if (!qrRegionRef.current) return;
 
     const html5QrCode = new Html5Qrcode(qrRegionRef.current.id);
+
     html5QrCode
       .start(
         { facingMode: "environment" },
         { fps: 10, qrbox: { width: 250, height: 250 } },
-        (decodedText: string) => {
-          console.log("QR Code detected:", decodedText);
+        () => {
           pushStamp();
-        },
-        (errorMessage) => {
-          // エラーは無視（カメラノイズなど）
         }
       )
       .catch((err) => console.error("Failed to start QR scanner", err));
@@ -55,7 +51,7 @@ const CardPage = () => {
     return () => {
       html5QrCode.stop().catch((err) => console.error("Failed to stop", err));
     };
-  }, []);
+  }, [pushStamp]);
 
   return (
     <div className="flex flex-col items-center min-h-screen bg-[#f4f8f7] pt-4">
