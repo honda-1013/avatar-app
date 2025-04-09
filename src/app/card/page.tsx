@@ -6,7 +6,6 @@ import { Swiper, SwiperSlide } from "swiper/react";
 import { motion } from "framer-motion";
 import "swiper/css";
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const emojiList = ["🍑", "🍓", "🥳", "☺️", "🍇", "🍍", "🌈", "🎶", "⭐️"];
 
 const Page = () => {
@@ -15,7 +14,6 @@ const Page = () => {
       .fill(0)
       .map(() => Array(9).fill(0))
   );
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const swiperRef = useRef<any>(null);
   const qrRegionRef = useRef<HTMLDivElement>(null);
 
@@ -53,15 +51,15 @@ const Page = () => {
         { fps: 10, qrbox: { width: 250, height: 250 } },
         () => {
           pushStamp();
-        }
+        },
+        (err) => console.error("QR error", err) // 4番目の引数追加！
       )
-      .catch((err) => console.error("QR error", err));
+      .catch((err) => console.error("QR start failed", err));
 
     return () => {
       html5QrCode.stop().catch(() => {});
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [stamps]);
 
   return (
     <div className="min-h-screen bg-white flex flex-col items-center justify-start p-4">
@@ -71,7 +69,6 @@ const Page = () => {
       <Swiper
         spaceBetween={20}
         slidesPerView={1}
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         onSwiper={(swiper: any) => (swiperRef.current = swiper)}
         className="w-full max-w-xs"
       >
@@ -104,3 +101,4 @@ const Page = () => {
 };
 
 export default Page;
+
