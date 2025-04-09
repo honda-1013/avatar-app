@@ -41,7 +41,7 @@ const CardPage = () => {
     html5QrCode
       .start(
         { facingMode: "environment" },
-        { fps: 10, qrbox: { width: 200, height: 200 } },
+        { fps: 10, qrbox: { width: 250, height: 250 } },
         () => {
           pushStamp();
         },
@@ -61,7 +61,7 @@ const CardPage = () => {
       <div
         id="reader"
         ref={qrRegionRef}
-        className="w-[90vw] max-w-[350px] aspect-square bg-white rounded-xl overflow-hidden shadow"
+        className="w-[250vw] max-w-[250px] aspect-square bg-white rounded-xl overflow-hidden shadow"
       />
       <h2 className="text-lg font-semibold text-black mt-4 mb-2">
         スタンプカード
