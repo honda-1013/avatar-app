@@ -1,106 +1,107 @@
 "use client";
 
-import React, { useEffect, useRef, useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Html5Qrcode } from "html5-qrcode";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { motion } from "framer-motion";
 import "swiper/css";
 
-const emojiList = ["🍑", "🍓", "🥳", "☺️", "🍇", "🍍", "🌈", "🎶", "⭐️"];
+const emojiList = ["🍑", "🍓", "🍇", "🍊", "🍋", "🍌", "🍉", "🥝", "⭐️"];
 
-const Page = () => {
+const CardPage = () => {
   const [stamps, setStamps] = useState<number[][]>(
-    Array(5)
-      .fill(0)
-      .map(() => Array(9).fill(0))
+    Array(5).fill(Array(9).fill(0))
   );
-  // swiperRefの定義（元のanyを修正）
-const swiperRef = useRef<{ swiper: { realIndex: number; slideTo: (index: number) => void } } | null>(null);
   const qrRegionRef = useRef<HTMLDivElement>(null);
+  const swiperRef = useRef<any>(null);
 
-  useEffect(() => {
-    const pushStamp = () => {
-      const currentIndex = swiperRef.current?.swiper?.realIndex || 0;
-      const currentCard = stamps[currentIndex];
+  const pushStamp = () => {
+    const currentIndex = swiperRef.current?.swiper?.realIndex || 0;
+    const newStamps = [...stamps];
+
+    for (let i = currentIndex; i < newStamps.length; i++) {
+      const currentCard = [...newStamps[i]];
       const nextStampIndex = currentCard.findIndex((s) => s === 0);
 
       if (nextStampIndex !== -1) {
-        const updatedCard = [...currentCard];
-        updatedCard[nextStampIndex] = 1;
-
-        const newStamps = [...stamps];
-        newStamps[currentIndex] = updatedCard;
-        setStamps(newStamps);
-      } else if (currentIndex < stamps.length - 1) {
-        const nextCardIndex = currentIndex + 1;
-        const updatedNextCard = [...stamps[nextCardIndex]];
-        const nextIndex = updatedNextCard.findIndex((s) => s === 0);
-        if (nextIndex !== -1) {
-          updatedNextCard[nextIndex] = 1;
-          const newStamps = [...stamps];
-          newStamps[nextCardIndex] = updatedNextCard;
-          setStamps(newStamps);
-          swiperRef.current?.swiper?.slideTo(nextCardIndex);
-        }
+        currentCard[nextStampIndex] = 1;
+        newStamps[i] = currentCard;
+        break;
       }
-    };
+    }
 
+    setStamps(newStamps);
+  };
+
+  useEffect(() => {
     const html5QrCode = new Html5Qrcode(qrRegionRef.current!.id);
-    html5QrCode
-      .start(
-        { facingMode: "environment" },
-        { fps: 10, qrbox: { width: 250, height: 250 } },
-        () => {
+    html5QrCode.start(
+      { facingMode: "environment" },
+      { fps: 10, qrbox: { width: 250, height: 250 } },
+      (decodedText: string) => {
+        if (decodedText) {
           pushStamp();
-        },
-        (err) => console.error("QR error", err) // 4番目の引数追加！
-      )
-      .catch((err) => console.error("QR start failed", err));
+        }
+      },
+      (errorMessage: string) => {
+        console.error(errorMessage);
+      }
+    );
 
     return () => {
-      html5QrCode.stop().catch(() => {});
+      html5QrCode.stop().catch((err: any) => console.error("Failed to stop", err));
     };
-  }, [stamps]);
+  }, []);
 
   return (
-    <div className="min-h-screen bg-white flex flex-col items-center justify-start p-4">
-      <div ref={qrRegionRef} id="qr-region" className="w-[250px] h-[250px] mb-4" />
-      <h1 className="text-xl font-bold mb-4 text-black">スタンプカード</h1>
+    <div className="min-h-screen flex flex-col justify-between bg-gray-50">
+      <div className="flex flex-col items-center mt-4">
+        <div
+          id="qr-reader"
+          ref={qrRegionRef}
+          className="w-[250px] h-[250px] bg-white rounded-md shadow-md"
+        />
+        <h2 className="mt-4 text-lg font-semibold text-black">スタンプカード</h2>
 
-      <Swiper
-        spaceBetween={20}
-        slidesPerView={1}
-        // Swiperの中のonSwiperイベント
-onSwiper={(swiper: { realIndex: number; slideTo: (index: number) => void }) => (swiperRef.current = { swiper })}
-        className="w-full max-w-xs"
-      >
-        {stamps.map((card, cardIndex) => (
-          <SwiperSlide key={cardIndex}>
-            <div className="grid grid-cols-3 gap-2 justify-items-center">
-              {card.map((filled, i) => (
-                <motion.div
-                  key={i}
-                  className="w-16 h-16 border-2 rounded-full flex items-center justify-center text-2xl bg-white"
-                  animate={{ scale: filled ? 1.2 : 1, opacity: filled ? 1 : 0.5 }}
-                  transition={{ duration: 0.3 }}
-                >
-                  {filled ? emojiList[i % emojiList.length] : ""}
-                </motion.div>
-              ))}
-            </div>
-          </SwiperSlide>
-        ))}
-      </Swiper>
+        <div className="w-full mt-4 px-4">
+          <Swiper
+            spaceBetween={20}
+            slidesPerView={1}
+            onSwiper={(swiper) => (swiperRef.current = { swiper })}
+            className="w-full"
+          >
+            {stamps.map((card, cardIndex) => (
+              <SwiperSlide key={cardIndex}>
+                <div className="grid grid-cols-3 gap-4 justify-items-center">
+                  {card.map((filled, i) => (
+                    <motion.div
+                      key={i}
+                      className="w-16 h-16 border-2 rounded-full flex items-center justify-center border-gray-400"
+                      animate={{
+                        scale: filled ? 1.2 : 1,
+                        opacity: filled ? 1 : 0.5,
+                      }}
+                      transition={{ duration: 0.3 }}
+                    >
+                      {filled ? emojiList[i % emojiList.length] : ""}
+                    </motion.div>
+                  ))}
+                </div>
+              </SwiperSlide>
+            ))}
+          </Swiper>
+        </div>
+      </div>
 
-      <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-300 flex justify-around py-2">
-        <span className="text-black">メニュー</span>
-        <span className="text-black">マイページ</span>
-        <span className="text-black">ホーム</span>
-        <span className="text-black">カード</span>
-      </nav>
+      <footer className="w-full flex justify-around py-2 border-t bg-white text-black text-sm">
+        <span>メニュー</span>
+        <span>マイページ</span>
+        <span>ホーム</span>
+        <span>カード</span>
+      </footer>
     </div>
   );
 };
 
-export default Page;
+export default CardPage;
 
