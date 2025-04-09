@@ -41,9 +41,11 @@ export default function CardPage() {
         { fps: 10, qrbox: { width: 250, height: 250 } },
         () => {
           pushStamp();
+        },
+        (err) => {
+          console.error("QRコード読み取りエラー:", err);
         }
-      )
-      .catch((err) => console.error("QR読み取りエラー:", err));
+      );
 
     return () => {
       html5QrCode.stop().catch(() => {});
