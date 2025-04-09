@@ -14,7 +14,7 @@ const Page = () => {
       .fill(0)
       .map(() => Array(9).fill(0))
   );
-  const swiperRef = useRef<any>(null);
+  const swiperRef = useRef<{ swiper: { realIndex: number; slideTo: (index: number) => void } } | null>(null);
   const qrRegionRef = useRef<HTMLDivElement>(null);
 
   const pushStamp = () => {
@@ -58,7 +58,7 @@ const Page = () => {
     return () => {
       html5QrCode.stop().catch(() => {});
     };
-  }, []);
+  }, [pushStamp]); // 依存配列に追加
 
   return (
     <div className="min-h-screen bg-white flex flex-col items-center justify-start p-4">
@@ -68,7 +68,7 @@ const Page = () => {
       <Swiper
         spaceBetween={20}
         slidesPerView={1}
-        onSwiper={(swiper) => (swiperRef.current = swiper)}
+        onSwiper={(swiper: any) => (swiperRef.current = swiper)}
         className="w-full max-w-xs"
       >
         {stamps.map((card, cardIndex) => (
