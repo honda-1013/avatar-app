@@ -6,6 +6,7 @@ import { Swiper, SwiperSlide } from "swiper/react";
 import { motion } from "framer-motion";
 import "swiper/css";
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const emojiList = ["🍑", "🍓", "🥳", "☺️", "🍇", "🍍", "🌈", "🎶", "⭐️"];
 
 const Page = () => {
@@ -14,36 +15,37 @@ const Page = () => {
       .fill(0)
       .map(() => Array(9).fill(0))
   );
-  const swiperRef = useRef<{ swiper: { realIndex: number; slideTo: (index: number) => void } } | null>(null);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const swiperRef = useRef<any>(null);
   const qrRegionRef = useRef<HTMLDivElement>(null);
 
-  const pushStamp = () => {
-    const currentIndex = swiperRef.current?.swiper?.realIndex || 0;
-    const currentCard = stamps[currentIndex];
-    const nextStampIndex = currentCard.findIndex((s) => s === 0);
-
-    if (nextStampIndex !== -1) {
-      const updatedCard = [...currentCard];
-      updatedCard[nextStampIndex] = 1;
-
-      const newStamps = [...stamps];
-      newStamps[currentIndex] = updatedCard;
-      setStamps(newStamps);
-    } else if (currentIndex < stamps.length - 1) {
-      const nextCardIndex = currentIndex + 1;
-      const updatedNextCard = [...stamps[nextCardIndex]];
-      const nextIndex = updatedNextCard.findIndex((s) => s === 0);
-      if (nextIndex !== -1) {
-        updatedNextCard[nextIndex] = 1;
-        const newStamps = [...stamps];
-        newStamps[nextCardIndex] = updatedNextCard;
-        setStamps(newStamps);
-        swiperRef.current?.swiper?.slideTo(nextCardIndex);
-      }
-    }
-  };
-
   useEffect(() => {
+    const pushStamp = () => {
+      const currentIndex = swiperRef.current?.swiper?.realIndex || 0;
+      const currentCard = stamps[currentIndex];
+      const nextStampIndex = currentCard.findIndex((s) => s === 0);
+
+      if (nextStampIndex !== -1) {
+        const updatedCard = [...currentCard];
+        updatedCard[nextStampIndex] = 1;
+
+        const newStamps = [...stamps];
+        newStamps[currentIndex] = updatedCard;
+        setStamps(newStamps);
+      } else if (currentIndex < stamps.length - 1) {
+        const nextCardIndex = currentIndex + 1;
+        const updatedNextCard = [...stamps[nextCardIndex]];
+        const nextIndex = updatedNextCard.findIndex((s) => s === 0);
+        if (nextIndex !== -1) {
+          updatedNextCard[nextIndex] = 1;
+          const newStamps = [...stamps];
+          newStamps[nextCardIndex] = updatedNextCard;
+          setStamps(newStamps);
+          swiperRef.current?.swiper?.slideTo(nextCardIndex);
+        }
+      }
+    };
+
     const html5QrCode = new Html5Qrcode(qrRegionRef.current!.id);
     html5QrCode
       .start(
@@ -58,7 +60,8 @@ const Page = () => {
     return () => {
       html5QrCode.stop().catch(() => {});
     };
-  }, [pushStamp]); // 依存配列に追加
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
     <div className="min-h-screen bg-white flex flex-col items-center justify-start p-4">
@@ -68,6 +71,7 @@ const Page = () => {
       <Swiper
         spaceBetween={20}
         slidesPerView={1}
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         onSwiper={(swiper: any) => (swiperRef.current = swiper)}
         className="w-full max-w-xs"
       >
