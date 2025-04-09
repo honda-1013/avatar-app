@@ -14,7 +14,8 @@ const Page = () => {
       .fill(0)
       .map(() => Array(9).fill(0))
   );
-  const swiperRef = useRef<any>(null);
+  // swiperRefの定義（元のanyを修正）
+const swiperRef = useRef<{ swiper: { realIndex: number; slideTo: (index: number) => void } } | null>(null);
   const qrRegionRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -69,7 +70,8 @@ const Page = () => {
       <Swiper
         spaceBetween={20}
         slidesPerView={1}
-        onSwiper={(swiper: any) => (swiperRef.current = swiper)}
+        // Swiperの中のonSwiperイベント
+onSwiper={(swiper: { realIndex: number; slideTo: (index: number) => void }) => (swiperRef.current = { swiper })}
         className="w-full max-w-xs"
       >
         {stamps.map((card, cardIndex) => (
