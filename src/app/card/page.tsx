@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useRef, useEffect } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Html5Qrcode } from "html5-qrcode";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { motion } from "framer-motion";
@@ -8,9 +8,11 @@ import "swiper/css";
 
 const emojiList = ["🍑", "🍓", "🥳", "☺️", "🍇", "🍍", "🌈", "🎶", "⭐️"];
 
-const CardPage = () => {
+const Page = () => {
   const [stamps, setStamps] = useState<number[][]>(
-    Array(5).fill(Array(9).fill(0))
+    Array(5)
+      .fill(0)
+      .map(() => Array(9).fill(0))
   );
   const swiperRef = useRef<any>(null);
   const qrRegionRef = useRef<HTMLDivElement>(null);
@@ -28,46 +30,50 @@ const CardPage = () => {
       newStamps[currentIndex] = updatedCard;
       setStamps(newStamps);
     } else if (currentIndex < stamps.length - 1) {
-      const newStamps = [...stamps];
-      newStamps[currentIndex + 1][0] = 1;
-      setStamps(newStamps);
+      const nextCardIndex = currentIndex + 1;
+      const updatedNextCard = [...stamps[nextCardIndex]];
+      const nextIndex = updatedNextCard.findIndex((s) => s === 0);
+      if (nextIndex !== -1) {
+        updatedNextCard[nextIndex] = 1;
+        const newStamps = [...stamps];
+        newStamps[nextCardIndex] = updatedNextCard;
+        setStamps(newStamps);
+        swiperRef.current?.swiper?.slideTo(nextCardIndex);
+      }
     }
   };
 
   useEffect(() => {
-    if (!qrRegionRef.current) return;
-
-    const html5QrCode = new Html5Qrcode(qrRegionRef.current.id);
-    html5QrCode.start(
-      { facingMode: "environment" },
-      { fps: 10, qrbox: { width: 250, height: 250 } },
-      () => pushStamp(),
-      () => {}
-    );
+    const html5QrCode = new Html5Qrcode(qrRegionRef.current!.id);
+    html5QrCode
+      .start(
+        { facingMode: "environment" },
+        { fps: 10, qrbox: { width: 250, height: 250 } },
+        () => {
+          pushStamp();
+        }
+      )
+      .catch((err) => console.error("QR error", err));
 
     return () => {
-      html5QrCode.stop().catch(console.warn);
+      html5QrCode.stop().catch(() => {});
     };
   }, []);
 
   return (
-    <div className="min-h-screen bg-gray-100 flex flex-col items-center pt-4 pb-20">
-      <div
-        id="reader"
-        ref={qrRegionRef}
-        className="w-[250px] h-[250px] border rounded overflow-hidden"
-      />
-      <h1 className="text-2xl font-bold my-4 text-black">スタンプカード</h1>
+    <div className="min-h-screen bg-white flex flex-col items-center justify-start p-4">
+      <div ref={qrRegionRef} id="qr-region" className="w-[250px] h-[250px] mb-4" />
+      <h1 className="text-xl font-bold mb-4 text-black">スタンプカード</h1>
 
       <Swiper
         spaceBetween={20}
         slidesPerView={1}
         onSwiper={(swiper) => (swiperRef.current = swiper)}
-        className="w-full max-w-sm"
+        className="w-full max-w-xs"
       >
         {stamps.map((card, cardIndex) => (
           <SwiperSlide key={cardIndex}>
-            <div className="grid grid-cols-3 gap-2 justify-center items-center px-2">
+            <div className="grid grid-cols-3 gap-2 justify-items-center">
               {card.map((filled, i) => (
                 <motion.div
                   key={i}
@@ -83,13 +89,14 @@ const CardPage = () => {
         ))}
       </Swiper>
 
-      <div className="mt-6 flex justify-around w-full border-t py-2 bg-white fixed bottom-0">
-        {["メニュー", "マイページ", "ホーム", "カード"].map((label) => (
-          <div key={label} className="text-black text-sm">{label}</div>
-        ))}
-      </div>
+      <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-300 flex justify-around py-2">
+        <span className="text-black">メニュー</span>
+        <span className="text-black">マイページ</span>
+        <span className="text-black">ホーム</span>
+        <span className="text-black">カード</span>
+      </nav>
     </div>
   );
 };
 
-export default CardPage;
+export default Page;
