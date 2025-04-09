@@ -1,7 +1,13 @@
 "use client";
 
-import React, { useState, useEffect, useRef, MutableRefObject } from "react";
-import { Html5Qrcode, Html5QrcodeScannerState } from "html5-qrcode";
+import React, {
+  useState,
+  useEffect,
+  useRef,
+  useCallback,
+  MutableRefObject,
+} from "react";
+import { Html5Qrcode } from "html5-qrcode";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { motion } from "framer-motion";
 import "swiper/css";
@@ -15,7 +21,7 @@ const CardPage: React.FC = () => {
   const swiperRef = useRef<{ swiper: { realIndex: number } } | null>(null);
   const qrRegionRef: MutableRefObject<HTMLDivElement | null> = useRef(null);
 
-  const pushStamp = () => {
+  const pushStamp = useCallback(() => {
     const currentIndex = swiperRef.current?.swiper?.realIndex || 0;
     const currentCard = stamps[currentIndex];
     const nextStampIndex = currentCard.findIndex((s) => s === 0);
@@ -27,7 +33,7 @@ const CardPage: React.FC = () => {
       newStamps[currentIndex] = updatedCard;
       setStamps(newStamps);
     }
-  };
+  }, [stamps]);
 
   useEffect(() => {
     const html5QrCode = new Html5Qrcode(qrRegionRef.current!.id);
@@ -37,14 +43,14 @@ const CardPage: React.FC = () => {
         { facingMode: "environment" },
         { fps: 10, qrbox: { width: 250, height: 250 } },
         () => pushStamp(),
-        (errorMessage) => console.warn("読み取りエラー:", errorMessage)
+        (err) => console.warn("読み取り失敗:", err)
       )
-      .catch((err) => console.error("QR起動エラー:", err));
+      .catch((err) => console.error("カメラ起動失敗:", err));
 
     return () => {
-      html5QrCode.stop().catch((err) => console.error("停止エラー:", err));
+      html5QrCode.stop().catch((err) => console.error("カメラ停止失敗:", err));
     };
-  }, [pushStamp]); // React Hook依存関係エラー回避
+  }, [pushStamp]);
 
   return (
     <div className="min-h-screen bg-gray-100 flex flex-col items-center justify-start">
