@@ -1,12 +1,6 @@
 "use client";
 
-import React, {
-  useState,
-  useEffect,
-  useRef,
-  useCallback,
-  MutableRefObject,
-} from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { Html5Qrcode } from "html5-qrcode";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { motion } from "framer-motion";
@@ -14,14 +8,14 @@ import "swiper/css";
 
 const emojiList = ["🍑", "🍓", "🥳", "☺️", "🍇", "🍍", "🌈", "🎶", "⭐️"];
 
-const CardPage: React.FC = () => {
+const CardPage = () => {
   const [stamps, setStamps] = useState<number[][]>(
     Array(5).fill(Array(9).fill(0))
   );
-  const swiperRef = useRef<{ swiper: { realIndex: number } } | null>(null);
-  const qrRegionRef: MutableRefObject<HTMLDivElement | null> = useRef(null);
+  const swiperRef = useRef<any>(null);
+  const qrRegionRef = useRef<HTMLDivElement>(null);
 
-  const pushStamp = useCallback(() => {
+  const pushStamp = () => {
     const currentIndex = swiperRef.current?.swiper?.realIndex || 0;
     const currentCard = stamps[currentIndex];
     const nextStampIndex = currentCard.findIndex((s) => s === 0);
@@ -29,56 +23,56 @@ const CardPage: React.FC = () => {
     if (nextStampIndex !== -1) {
       const updatedCard = [...currentCard];
       updatedCard[nextStampIndex] = 1;
+
       const newStamps = [...stamps];
       newStamps[currentIndex] = updatedCard;
       setStamps(newStamps);
+    } else if (currentIndex < stamps.length - 1) {
+      const newStamps = [...stamps];
+      newStamps[currentIndex + 1][0] = 1;
+      setStamps(newStamps);
     }
-  }, [stamps]);
+  };
 
   useEffect(() => {
-    const html5QrCode = new Html5Qrcode(qrRegionRef.current!.id);
+    if (!qrRegionRef.current) return;
 
-    html5QrCode
-      .start(
-        { facingMode: "environment" },
-        { fps: 10, qrbox: { width: 250, height: 250 } },
-        () => pushStamp(),
-        (err) => console.warn("読み取り失敗:", err)
-      )
-      .catch((err) => console.error("カメラ起動失敗:", err));
+    const html5QrCode = new Html5Qrcode(qrRegionRef.current.id);
+    html5QrCode.start(
+      { facingMode: "environment" },
+      { fps: 10, qrbox: { width: 250, height: 250 } },
+      () => pushStamp(),
+      () => {}
+    );
 
     return () => {
-      html5QrCode.stop().catch((err) => console.error("カメラ停止失敗:", err));
+      html5QrCode.stop().catch(console.warn);
     };
-  }, [pushStamp]);
+  }, []);
 
   return (
-    <div className="min-h-screen bg-gray-100 flex flex-col items-center justify-start">
+    <div className="min-h-screen bg-gray-100 flex flex-col items-center pt-4 pb-20">
       <div
-        ref={qrRegionRef}
         id="reader"
-        className="w-[250px] h-[250px] mt-4 rounded-md overflow-hidden"
+        ref={qrRegionRef}
+        className="w-[250px] h-[250px] border rounded overflow-hidden"
       />
-
-      <h1 className="text-2xl font-bold my-4 text-center">スタンプカード</h1>
+      <h1 className="text-2xl font-bold my-4 text-black">スタンプカード</h1>
 
       <Swiper
         spaceBetween={20}
         slidesPerView={1}
-        onSwiper={(swiper) => (swiperRef.current = { swiper })}
-        className="w-full max-w-xs"
+        onSwiper={(swiper) => (swiperRef.current = swiper)}
+        className="w-full max-w-sm"
       >
         {stamps.map((card, cardIndex) => (
           <SwiperSlide key={cardIndex}>
-            <div className="grid grid-cols-3 gap-3 place-items-center">
+            <div className="grid grid-cols-3 gap-2 justify-center items-center px-2">
               {card.map((filled, i) => (
                 <motion.div
                   key={i}
-                  className="w-16 h-16 border-2 border-gray-400 rounded-full flex items-center justify-center text-2xl bg-white"
-                  animate={{
-                    scale: filled ? 1.2 : 1,
-                    opacity: filled ? 1 : 0.5,
-                  }}
+                  className="w-16 h-16 border-2 rounded-full flex items-center justify-center text-2xl bg-white"
+                  animate={{ scale: filled ? 1.2 : 1, opacity: filled ? 1 : 0.5 }}
                   transition={{ duration: 0.3 }}
                 >
                   {filled ? emojiList[i % emojiList.length] : ""}
