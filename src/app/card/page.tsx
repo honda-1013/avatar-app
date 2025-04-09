@@ -41,7 +41,7 @@ const CardPage = () => {
     html5QrCode
       .start(
         { facingMode: "environment" },
-        { fps: 10, qrbox: { width: 250, height: 250 } },
+        { fps: 10, qrbox: { width: 200, height: 200 } },
         () => {
           pushStamp();
         },
