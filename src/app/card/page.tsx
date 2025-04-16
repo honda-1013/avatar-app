@@ -95,12 +95,12 @@ const CardPage = () => {
           ))}
         </Swiper>
       </div>
-      <nav className="fixed bottom-0 left-0 w-full bg-white text-black flex justify-around py-2 border-t">
-        <span>メニュー</span>
-        <span>マイページ</span>
-        <span>ホーム</span>
-        <span>カード</span>
-      </nav>
+      <nav className="fixed bottom-0 left-0 w-full bg-white flex justify-around py-2 border-t">
+      <span className="text-black font-semibold text-sm">メニュー</span>
+      <span className="text-black font-semibold text-sm">マイページ</span>
+      <span className="text-black font-semibold text-sm">ホーム</span>
+      <span className="text-black font-semibold text-sm">カード</span>
+</nav>
     </div>
   );
 };
