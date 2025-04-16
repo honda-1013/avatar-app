@@ -74,6 +74,7 @@ const CardPage = () => {
         >
           {stamps.map((card, cardIndex) => (
             <SwiperSlide key={cardIndex}>
+            <div className="flex justify-center">
               <div className="grid grid-cols-3 gap-4 p-4">
                 {card.map((filled, i) => (
                   <motion.div
@@ -89,7 +90,8 @@ const CardPage = () => {
                   </motion.div>
                 ))}
               </div>
-            </SwiperSlide>
+            </div>
+          </SwiperSlide>          
           ))}
         </Swiper>
       </div>
