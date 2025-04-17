@@ -5,6 +5,7 @@ import { Html5Qrcode } from "html5-qrcode";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { motion } from "framer-motion";
 import "swiper/css";
+import EffectOverlay from "@/components/EffectOverlay";
 
 const emojiList = ["🍑", "🍓", "🍒", "🍇", "🍉", "🍍", "🥝", "🍎", "⭐"];
 
@@ -14,7 +15,9 @@ const CardPage = () => {
   );
   const qrRegionRef = useRef<HTMLDivElement | null>(null);
   const swiperRef = useRef<{ swiper: { realIndex: number } } | null>(null);
-
+  const [effectTrigger, setEffectTrigger] = useState(false);
+  const [currentEmoji, setCurrentEmoji] = useState("⭐");
+  
   const pushStamp = useCallback(() => {
     const currentIndex = swiperRef.current?.swiper?.realIndex || 0;
     const newStamps = [...stamps];
@@ -28,6 +31,8 @@ const CardPage = () => {
         newStamps[i] = currentCard;
         break;
       }
+      const [effectTrigger, setEffectTrigger] = useState(false);
+const [currentEmoji, setCurrentEmoji] = useState("⭐");
     }
 
     setStamps(newStamps);
@@ -43,7 +48,8 @@ const CardPage = () => {
         { facingMode: "environment" },
         { fps: 10, qrbox: { width: 250, height: 250 } },
         () => {
-          pushStamp();
+          setCurrentEmoji(emojiList[Math.floor(Math.random() * emojiList.length)]);
+          setEffectTrigger(true);
         },
         (error) => {
           console.warn("QR decode error", error);
@@ -58,6 +64,15 @@ const CardPage = () => {
 
   return (
     <div className="flex flex-col items-center min-h-screen bg-[#f4f8f7] pt-4">
+      <EffectOverlay
+  trigger={effectTrigger}
+  onComplete={() => {
+    setEffectTrigger(false);
+    pushStamp();
+  }}
+  emoji={currentEmoji}
+/>
+
       <div
         id="reader"
         ref={qrRegionRef}
