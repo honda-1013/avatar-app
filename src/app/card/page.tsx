@@ -5,7 +5,7 @@ import { Html5Qrcode } from "html5-qrcode";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { motion } from "framer-motion";
 import "swiper/css";
-import EffectOverlay from "@/components/EffectOverlay";
+import EffectOverlay from "../../components/EffectOverlay";
 
 const emojiList = ["🍑", "🍓", "🍒", "🍇", "🍉", "🍍", "🥝", "🍎", "⭐"];
 
