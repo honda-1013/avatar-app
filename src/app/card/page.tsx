@@ -14,7 +14,7 @@ const CardPage = () => {
     Array(5).fill(Array(9).fill(0))
   );
   const [effectTrigger, setEffectTrigger] = useState(false);
-const [currentEmoji, setCurrentEmoji] = useState("🍑");
+const [currentEmoji, setCurrentEmoji] = useState("⭐");
 
   const qrRegionRef = useRef<HTMLDivElement | null>(null);
   const swiperRef = useRef<{ swiper: { realIndex: number } } | null>(null);
@@ -33,8 +33,7 @@ const [currentEmoji, setCurrentEmoji] = useState("🍑");
         newStamps[i] = currentCard;
         break;
       }
-      const [effectTrigger, setEffectTrigger] = useState(false);
-const [currentEmoji, setCurrentEmoji] = useState("⭐");
+
     }
 
     setStamps(newStamps);
