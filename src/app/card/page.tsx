@@ -13,10 +13,12 @@ const CardPage = () => {
   const [stamps, setStamps] = useState<number[][]>(
     Array(5).fill(Array(9).fill(0))
   );
+  const [effectTrigger, setEffectTrigger] = useState(false);
+const [currentEmoji, setCurrentEmoji] = useState("🍑");
+
   const qrRegionRef = useRef<HTMLDivElement | null>(null);
   const swiperRef = useRef<{ swiper: { realIndex: number } } | null>(null);
-  const [effectTrigger, setEffectTrigger] = useState(false);
-  const [currentEmoji, setCurrentEmoji] = useState("⭐");
+
   
   const pushStamp = useCallback(() => {
     const currentIndex = swiperRef.current?.swiper?.realIndex || 0;
