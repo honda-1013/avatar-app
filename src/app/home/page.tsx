@@ -8,7 +8,20 @@ export default function HomePage() {
   return (
     <div className="p-4 flex flex-col items-center">
       <h1 className="text-xl font-bold mb-4">アバター作成</h1>
+      
+      {/* カラーの丸 */}
       <div className={`w-32 h-32 rounded-full ${avatarColor}`}></div>
+      
+      {/* ここに画像を追加！ */}
+      <div className="relative w-40 h-40 mt-4">
+        <img
+          src="/avatar.png"
+          alt="Avatar"
+          className="w-full h-full object-contain touch-manipulation"
+        />
+      </div>
+
+      {/* 色ボタン */}
       <div className="mt-4 flex gap-2">
         <button
           onClick={() => setAvatarColor("bg-blue-400")}
